@@ -6,7 +6,8 @@ const mongoose = require("mongoose");
 // const morgan = require('morgan');
 const dotenv = require("dotenv");
 const userRoute = require('./router/api/users')
-// const authRoute = require("./routes/auth")
+const authRoute = require('./router/api/auth')
+const profileRoute = require('./router/api/profile')
 // const postRoute = require("./routes/posts")
 
 
@@ -42,7 +43,8 @@ mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopolo
 
 // Use Routes
   app.use("/api/users", userRoute)
-  // app.use("/api/auth", authRoute)
+  app.use("/api/auth", authRoute)
+  app.use("/api/profile", profileRoute)
   // app.use("/api/posts", postRoute)
 
 

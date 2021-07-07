@@ -3,12 +3,15 @@ const User = require('../../models/User')
 const { check, validationResult } = require('express-validator')
 const bcrypt = require('bcryptjs')
 const gravatar = require('gravatar')
+const jwt = require('jsonwebtoken')
+
 
 
 
 // @route    POST api/users
 // @desc     Register user
 // @access   Public
+
 router.post('/',
 check('name', 'name is required').not().isEmpty(),
 check('email', 'please provide a valid email').isEmail(),
@@ -21,8 +24,8 @@ async (req, res) => {
   const {name, email, password } = req.body
   try {
     //is user unique
-    let user = await User.findOne({ email })
-    if(user){
+    let existsuser = await User.findOne({ email })
+    if(existsuser){
       return res.status(400).json('user already exists')
     }
     //password hash
@@ -45,9 +48,24 @@ async (req, res) => {
     })
 
     //save
-    const regUser = await newUser.save()
+    const user = await newUser.save()
+
     //jsonwebtoken
-    res.status(200).json(regUser._id)
+    const payload = {
+        user: {
+          id: user.id
+        }
+      }
+
+      jwt.sign(
+        payload,
+        process.env.jwtSecret,
+        { expiresIn: '5 days' },
+        (err, token) => {
+          if (err) throw err ;
+          res.status(200).json({ token })
+        }
+      )
     
   } catch (error) {
     res.status(500).json('server error')
